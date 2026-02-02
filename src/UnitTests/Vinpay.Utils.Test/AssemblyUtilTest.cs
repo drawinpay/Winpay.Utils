@@ -1,5 +1,5 @@
 using System.Reflection;
-using Vinpay.Utils.Assemblies;
+using Vinpay.Utils.Reflection;
 
 namespace Vinpay.Utils.Test;
 
