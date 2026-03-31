@@ -3,7 +3,7 @@
 namespace Vinpay.Utils.Test
 {
     [TestClass]
-    public class ByteDataConverterTest
+    public class ByteStringConverterTest
     {
         [TestMethod]
         [DataRow("45149C63ECAAC3E740D46FE6D65BC684")]
@@ -16,7 +16,7 @@ namespace Vinpay.Utils.Test
                 0x45, 0x14, 0x9C, 0x63, 0xEC, 0xAA, 0xC3, 0xE7, 0x40, 0xD4, 0x6F, 0xE6, 0xD6, 0x5B, 0xC6, 0x84
             ];
 
-            byte[] output = ByteDataConverter.ParseHexString(input);
+            byte[] output = ByteStringConverter.ParseHexString(input);
 
             Assert.AreEqual(result.Length, output.Length);
             for (int i = 0; i < result.Length; i++)
@@ -32,7 +32,7 @@ namespace Vinpay.Utils.Test
         {
             Assert.ThrowsException<ArgumentException>(() =>
             {
-                byte[] output = ByteDataConverter.ParseHexString(input);
+                byte[] output = ByteStringConverter.ParseHexString(input);
             });
         }
         [TestMethod]
@@ -48,7 +48,7 @@ namespace Vinpay.Utils.Test
                 0x45, 0x14, 0x9C, 0x63, 0xEC, 0xAA, 0xC3, 0xE7, 0x40, 0xD4, 0x6F, 0xE6, 0xD6, 0x5B, 0xC6, 0x84
             ];
 
-            byte[] output = ByteDataConverter.ParseHexString(input, separator);
+            byte[] output = ByteStringConverter.ParseHexString(input, separator);
 
             Assert.AreEqual(result.Length, output.Length);
             for (int i = 0; i < result.Length; i++)

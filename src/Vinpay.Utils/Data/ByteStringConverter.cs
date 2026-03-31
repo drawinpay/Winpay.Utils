@@ -5,7 +5,7 @@ namespace Vinpay.Utils.Data
     /// <summary>
     /// Parse binary data from strings.
     /// </summary>
-    public static class ByteDataConverter
+    public static class ByteStringConverter
     {
         /// <summary>
         /// Parse hex string to byte array.
