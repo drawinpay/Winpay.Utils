@@ -3,7 +3,7 @@
     /// <summary>
     /// Command line parameter parser.
     /// </summary>
-    public class CmdParameterParser
+    public class CmdArgsParser
     {
         #region Private Methods
 
