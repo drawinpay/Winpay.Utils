@@ -52,22 +52,6 @@
 
         #region Private Methods
 
-        private static byte GetBitMask(int bitCounts)
-        {
-            return bitCounts switch
-            {
-                1 => 0b1,
-                2 => 0b11,
-                3 => 0b111,
-                4 => 0b1111,
-                5 => 0b11111,
-                6 => 0b111111,
-                7 => 0b1111111,
-                8 => 0b11111111,
-                _ => throw new ArgumentOutOfRangeException(nameof(bitCounts), "bitCounts must be in range 1-8.")
-            };
-        }
-
         private int GetActualByteIndex(int byteIndex)
         {
             int actualByteIndex = byteIndex + ByteOffset;
@@ -90,7 +74,7 @@
 
         private void WriteBitInternal(int actualByteIndex, int bitIndex, ulong value)
         {
-            var mask = (byte)(1 << bitIndex);
+            var mask = BitMaskUtil.GetBitMask(bitIndex);
             if (value == 1)
             {
                 Data[actualByteIndex] |= mask;
@@ -176,7 +160,7 @@
             if (maxBitCountInFirstByte >= bitCount)
             {
                 int leftShift = maxBitCountInFirstByte - bitCount;
-                var mask = (byte)~(GetBitMask(bitCount) << leftShift);
+                var mask = (byte)~(BitMaskUtil.GetMultiBitMask(bitCount) << leftShift);
                 Data[actualByteIndex] = (byte)((ulong)(mask & Data[actualByteIndex]) + (value << leftShift));
                 return;
             }
@@ -184,15 +168,15 @@
             int lastBitCount = bitCount - firstBitCount;
             if (lastBitCount <= 8)
             {
-                var firstMask = ~GetBitMask(firstBitCount);
+                var firstMask = ~BitMaskUtil.GetMultiBitMask(firstBitCount);
                 Data[actualByteIndex] = (byte)((ulong)(firstMask & Data[actualByteIndex]) + (value >> lastBitCount));
 
-                var secondMask = (byte)~(GetBitMask(lastBitCount) << 8 - lastBitCount);
-                Data[actualByteIndex + 1] = (byte)((ulong)(secondMask & Data[actualByteIndex + 1]) + ((value & GetBitMask(lastBitCount)) << 8 - lastBitCount));
+                var secondMask = (byte)~(BitMaskUtil.GetMultiBitMask(lastBitCount) << 8 - lastBitCount);
+                Data[actualByteIndex + 1] = (byte)((ulong)(secondMask & Data[actualByteIndex + 1]) + ((value & BitMaskUtil.GetMultiBitMask(lastBitCount)) << 8 - lastBitCount));
                 return;
             }
 
-            int firstMask1 = ~GetBitMask(firstBitCount);
+            int firstMask1 = ~BitMaskUtil.GetMultiBitMask(firstBitCount);
             Data[actualByteIndex] = (byte)((ulong)(firstMask1 & Data[actualByteIndex]) + (value >> bitCount - firstBitCount));
 
             int fullByteCount = (bitCount - firstBitCount) / 8;
@@ -205,8 +189,8 @@
             lastBitCount = bitCount - firstBitCount - fullByteCount * 8;
             if (lastBitCount > 0)
             {
-                var lastMask = (byte)~(GetBitMask(lastBitCount) << 8 - lastBitCount);
-                Data[actualByteIndex + fullByteCount + 1] = (byte)((ulong)(lastMask & Data[actualByteIndex + fullByteCount + 1]) + ((value & GetBitMask(lastBitCount)) << 8 - lastBitCount));
+                var lastMask = (byte)~(BitMaskUtil.GetMultiBitMask(lastBitCount) << 8 - lastBitCount);
+                Data[actualByteIndex + fullByteCount + 1] = (byte)((ulong)(lastMask & Data[actualByteIndex + fullByteCount + 1]) + ((value & BitMaskUtil.GetMultiBitMask(lastBitCount)) << 8 - lastBitCount));
             }
         }
 

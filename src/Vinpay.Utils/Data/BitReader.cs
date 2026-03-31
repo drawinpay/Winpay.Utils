@@ -5,26 +5,6 @@
     /// </summary>
     public class BitReader
     {
-        #region Private Methods
-
-        private static byte GetBitMask(int bitCounts)
-        {
-            return bitCounts switch
-            {
-                1 => 0b1,
-                2 => 0b11,
-                3 => 0b111,
-                4 => 0b1111,
-                5 => 0b11111,
-                6 => 0b111111,
-                7 => 0b1111111,
-                8 => 0b11111111,
-                _ => throw new ArgumentOutOfRangeException(nameof(bitCounts), "bitCounts must be in range 1-8.")
-            };
-        }
-
-        #endregion
-
         #region Properties
 
         /// <summary>
@@ -158,7 +138,7 @@
             if (bitIndex + 1 - bitCount >= 0)
             {
                 int rightShift = bitIndex + 1 - bitCount;
-                byte mask = GetBitMask(bitCount);
+                byte mask = BitMaskUtil.GetMultiBitMask(bitCount);
                 long onlyFirstByteValue = Data[byteIndex + ByteOffset] >> rightShift & mask;
                 return onlyFirstByteValue;
             }
@@ -167,7 +147,7 @@
             int middleByteCount = (bitCount - firstByteBitCount) / 8;
             int lastByteBitCount = (bitCount - firstByteBitCount) % 8;
 
-            byte firstByteMask = GetBitMask(firstByteBitCount);
+            byte firstByteMask = BitMaskUtil.GetMultiBitMask(firstByteBitCount);
             int firstByteValue = (byte)(Data[byteIndex + ByteOffset] & firstByteMask);
 
             int result = firstByteValue << bitCount - firstByteBitCount;
@@ -214,7 +194,7 @@
             if (bitIndex + 1 - bitCount >= 0)
             {
                 int rightShift = bitIndex + 1 - bitCount;
-                byte mask = GetBitMask(bitCount);
+                byte mask = BitMaskUtil.GetMultiBitMask(bitCount);
                 byte onlyFirstByteValue = (byte)(Data[byteIndex + ByteOffset] >> rightShift & mask);
                 return onlyFirstByteValue;
             }
@@ -222,7 +202,7 @@
             int firstByteBitCount = bitIndex + 1;
             int lastByteBitCount = bitCount - firstByteBitCount;
 
-            byte firstByteMask = GetBitMask(firstByteBitCount);
+            byte firstByteMask = BitMaskUtil.GetMultiBitMask(firstByteBitCount);
             int firstByteValue = (byte)(Data[byteIndex + ByteOffset] & firstByteMask);
 
             int lastByteValue = Data[byteIndex + ByteOffset + 1] >> 8 - lastByteBitCount;
