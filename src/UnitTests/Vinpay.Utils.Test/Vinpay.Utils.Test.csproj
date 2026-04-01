@@ -13,6 +13,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\EmbeddedResourceTest\text1.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\EmbeddedResourceTest\text1.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\Vinpay.Utils\Vinpay.Utils.csproj" />
   </ItemGroup>
 
