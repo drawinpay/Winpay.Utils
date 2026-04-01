@@ -3,7 +3,7 @@ using Vinpay.Utils.Maths;
 namespace Vinpay.Utils.Test;
 
 [TestClass]
-public class EqualsExtensionsTest
+public class NumericalEqualityTest
 {
     [TestMethod]
     [DataRow(1d, 1d, true)]
