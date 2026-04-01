@@ -46,6 +46,15 @@ public class BitReaderTest
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void Constructor_WithOffsetGreaterThanLength_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        _ = new BitReader(data, data.Length + 1);
+    }
+
+    [TestMethod]
     [DataRow(0, 0)]
     [DataRow(1, 1)]
     [DataRow(2, 1)]
@@ -145,6 +154,18 @@ public class BitReaderTest
     }
 
     [TestMethod]
+    public void ReadByte_WithByteOffsetAndBoundaryIndex_ReturnsExpectedByte()
+    {
+        byte[] data = [0x00, 0xD6, 0x69, 0xAC];
+
+        var reader = new BitReader(data, 1);
+
+        byte result = reader.ReadByte(2);
+
+        Assert.AreEqual(0xAC, result);
+    }
+
+    [TestMethod]
     public void ReadBytes_ReturnsExpectedBytes()
     {
         byte[] data = [0x00, 0xD6, 0x69, 0xAC];
@@ -154,6 +175,18 @@ public class BitReaderTest
         byte[] result = reader.ReadBytes(0, 2);
 
         CollectionAssert.AreEqual(new byte[] { 0xD6, 0x69 }, result);
+    }
+
+    [TestMethod]
+    public void ReadBytes_WithByteOffsetAndBoundaryRange_ReturnsExpectedBytes()
+    {
+        byte[] data = [0x00, 0xD6, 0x69, 0xAC];
+
+        var reader = new BitReader(data, 1);
+
+        byte[] result = reader.ReadBytes(1, 2);
+
+        CollectionAssert.AreEqual(new byte[] { 0x69, 0xAC }, result);
     }
 
     [TestMethod]
@@ -193,6 +226,74 @@ public class BitReaderTest
     }
 
     [TestMethod]
+    public void ReadBitsAsByte_SingleBit_ReturnsExpectedValue()
+    {
+        byte[] data = [0xD6]; // 11010110
+
+        var reader = new BitReader(data);
+
+        byte result = reader.ReadBitsAsByte(0, 0, 1);
+
+        Assert.AreEqual((byte)0b0, result);
+    }
+
+    [TestMethod]
+    public void ReadBitsAsByte_FullByte_ReturnsExpectedValue()
+    {
+        byte[] data = [0xD6]; // 11010110
+
+        var reader = new BitReader(data);
+
+        byte result = reader.ReadBitsAsByte(0, 7, 8);
+
+        Assert.AreEqual((byte)0xD6, result);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsByte_WithNegativeByteIndex_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsByte(-1, 2, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsByte_WithByteIndexOutOfRange_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsByte(2, 2, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsByte_WithNegativeBitIndex_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsByte(0, -1, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsByte_WithBitIndexGreaterThanSeven_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsByte(0, 8, 5);
+    }
+
+    [TestMethod]
     [ExpectedException(typeof(ArgumentOutOfRangeException))]
     public void ReadBitsAsByte_WithInvalidBitCount_ThrowsException()
     {
@@ -201,6 +302,17 @@ public class BitReaderTest
         var reader = new BitReader(data);
 
         reader.ReadBitsAsByte(0, 2, 0);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsByte_WithBitCountGreaterThanEight_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsByte(0, 2, 9);
     }
 
     [TestMethod]
@@ -237,6 +349,85 @@ public class BitReaderTest
         long result = reader.ReadBitsAsInt(0, 2, 13); // 110 01101001 10
 
         Assert.AreEqual(0x19A6L, result);
+    }
+
+    [TestMethod]
+    public void ReadBitsAsInt_FullByte_ReturnsExpectedValue()
+    {
+        byte[] data = [0xD6]; // 11010110
+
+        var reader = new BitReader(data);
+
+        long result = reader.ReadBitsAsInt(0, 7, 8);
+
+        Assert.AreEqual(0xD6L, result);
+    }
+
+    [TestMethod]
+    public void ReadBitsAsInt_WithByteOffset_CrossBytesWithRemainder_ReturnsExpectedValue()
+    {
+        byte[] data = [0x00, 0xD6, 0x69, 0xAC];
+
+        var reader = new BitReader(data, 1);
+
+        long result = reader.ReadBitsAsInt(0, 2, 13);
+
+        Assert.AreEqual(0x19A6L, result);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsInt_WithNegativeByteIndex_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsInt(-1, 2, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsInt_WithByteIndexOutOfRange_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsInt(2, 2, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsInt_WithNegativeBitIndex_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsInt(0, -1, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsInt_WithBitIndexGreaterThanSeven_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsInt(0, 8, 5);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentOutOfRangeException))]
+    public void ReadBitsAsInt_WithBitCountZero_ThrowsException()
+    {
+        byte[] data = [0xD6, 0x69];
+
+        var reader = new BitReader(data);
+
+        reader.ReadBitsAsInt(0, 2, 0);
     }
 
     [TestMethod]
